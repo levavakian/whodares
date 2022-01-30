@@ -69,10 +69,7 @@ func HandleCreate(rooms *LockedRooms) func(http.ResponseWriter, *http.Request) {
 			return
 		}
 
-		type CreateReq struct {
-			Size int
-			Hotseat bool
-		}
+		type CreateReq struct {} // can contain settings to create with in the future
 		var createReq CreateReq
 		err := json.NewDecoder(r.Body).Decode(&createReq)
 		if err != nil {
@@ -94,7 +91,7 @@ func HandleCreate(rooms *LockedRooms) func(http.ResponseWriter, *http.Request) {
 				continue
 			}
 
-			nr, err := NewRoom(code.Code, createReq.Size, createReq.Hotseat)
+			nr, err := NewRoom(code.Code)
 			if err != nil {
 				WriteError(w, err.Error(), http.StatusBadRequest)
 			}
@@ -190,8 +187,8 @@ func HandlePing(rooms *LockedRooms) func(http.ResponseWriter, *http.Request) {
 			Ping string `json:"ping"`
 		}
 
-		for idx, player := range room.Players {
-			if req.Name != player.Name && idx == room.Board.CurrentPlayer {
+		for _, player := range room.Players {
+			if req.Name != player.Name && room.WaitingForInput(player) {
 				for ws, _ := range player.Conns {
 					nerr := ws.WriteJSON(Ping{req.Name})
 					if nerr != nil {
@@ -295,18 +292,7 @@ func HandleAction(rooms *LockedRooms) func(http.ResponseWriter, *http.Request) {
 		room.Lock()
 		defer room.Unlock()
 
-		if room.Board.Finished && input.Reset {
-			newRoom, err := NewRoom(room.Code, room.Board.NumPlayers, room.SPMode)
-			if err != nil {
-				WriteError(w, "error in creating new game", http.StatusBadRequest)
-				return
-			}
-			room.Board = newRoom.Board
-			rand.Shuffle(len(room.Players), func(i, j int) { room.Players[i], room.Players[j] = room.Players[j], room.Players[i] })
-			room.History = []string{"Game reset!"}
-		} else {
-			err = room.DoAction(&input)
-		}
+		err = room.DoAction(&input)
 
 		if err == nil {
 			room.NotifyPlayers()
@@ -380,57 +366,6 @@ func HandleStream(rooms *LockedRooms, upgrader *websocket.Upgrader) func(http.Re
 	}
 }
 
-func HandleRule(rooms *LockedRooms) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if !setupHeaders(&w, r) {
-			return
-		}
-
-		type RuleReq struct {
-			Code string
-			Delete bool
-			Id int
-			Rule Rule
-		}
-		var req RuleReq
-		err := json.NewDecoder(r.Body).Decode(&req)
-		if err != nil {
-			WriteError(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if req.Code == "" {
-			WriteError(w, "lobby code missing from prompt request", http.StatusBadRequest)
-			return
-		}
-
-		rooms.Lock()
-		room, ok := rooms.Rooms[req.Code]
-		rooms.Unlock()
-
-		if !ok {
-			WriteError(w, "no such lobby", http.StatusBadRequest)
-			return
-		}
-
-		room.Lock()
-		defer room.Unlock()
-
-		if req.Delete {
-			if req.Id < len(room.Rules) && req.Id > 0 {
-				room.Rules = append(room.Rules[:req.Id], room.Rules[req.Id+1:]...)
-			} else {
-				WriteError(w, "invalid rule id", http.StatusBadRequest)
-				return
-			}
-		} else {
-			room.Rules = append(room.Rules, req.Rule)
-		}
-
-		w.WriteHeader(http.StatusOK)
-		room.NotifyPlayers()
-	}
-}
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	host := "0.0.0.0"
@@ -454,7 +389,6 @@ func main() {
 	http.HandleFunc("/api/state", HandleState(rooms))
 	http.HandleFunc("/api/stream", HandleStream(rooms, upgrader))
 	http.HandleFunc("/api/ping", HandlePing(rooms))
-	http.HandleFunc("/api/rule", HandleRule(rooms))
 	http.Handle("/", http.FileServer(http.Dir("/home/apps/whodares/client/build")))
 	log.Println("Game server starting on", host, port)
 	log.Println(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), nil))

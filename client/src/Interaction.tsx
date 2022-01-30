@@ -232,7 +232,7 @@ class Interaction extends React.Component<InteractionProps,InteractionState> {
             ])
         } else {
             return ([
-                <div>The author was {author}, since {voted} was chosen instead, they must now do the dare</div>,
+                <div>The author was {author}, bu {voted} was chosen instead. {author} can choose who must do the dare now</div>,
                 <div>{dare}</div>
             ])
         }

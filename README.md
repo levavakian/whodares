@@ -9,7 +9,7 @@ The project's core constraint is simplicity in deployment. It must be a static w
 ## 2. Core Technologies
 
 -   **HTML/CSS/JavaScript**: The foundation of the web application.
--   **Trystero**: A lightweight JavaScript library that simplifies WebRTC peer-to-peer connections. It will be used for all communication between players, including game state synchronization. It should be included via a CDN link in `index.html`.
+-   **Trystero**: A lightweight JavaScript library that simplifies WebRTC peer-to-peer connections. It will be used for all communication between players, including game state synchronization. It is loaded as an ES module using import maps.
 
 ## 3. Deployment
 
@@ -141,21 +141,45 @@ Follow these steps to build the application:
 
 1.  **Step 1: Basic Setup**
     -   Create `index.html`, `style.css`, and `app.js`.
-    -   In `index.html`, add the Trystero library from a CDN: `<script src="https://unpkg.com/trystero/dist/trystero.min.js"></script>`.
+    -   In `index.html`, add an import map and load Trystero as an ES module:
+    ```html
+    <script type="importmap">
+    {
+      "imports": {
+        "trystero": "https://cdn.jsdelivr.net/npm/trystero@0.21.3/+esm"
+      }
+    }
+    </script>
+    <script type="module" src="app.js"></script>
+    ```
     -   Lay out the basic HTML structure for the `SplashScreen` and `GameScreen` (you can hide the `GameScreen` initially).
 
 2.  **Step 2: Room Connection**
-    -   In `app.js`, implement the logic for the `SplashScreen`.
-    -   Use `Trystero` to create and join rooms. Use the hash from the URL (`window.location.hash`) for the room code.
+    -   In `app.js`, import Trystero at the top of the file:
+    ```javascript
+    import { joinRoom } from 'trystero';
+    ```
+    -   Implement the logic for the `SplashScreen`.
+    -   Use `joinRoom` to create and join rooms. Pass an app ID and room code:
+    ```javascript
+    const appId = 'who-dares-' + window.location.hostname;
+    const room = joinRoom({ appId }, roomCode);
+    ```
+    -   Use the hash from the URL (`window.location.hash`) for the room code.
     -   On successful connection, hide the `SplashScreen` and show the `GameScreen`.
 
 3.  **Step 3: Player and Admin Sync**
-    -   Implement the `PlayerList`. Use `Trystero`'s `onPeerJoin` and `onPeerLeave` events to keep the list synchronized.
+    -   Implement the `PlayerList`. Use the room's `onPeerJoin` and `onPeerLeave` events to keep the list synchronized.
     -   The first person to create the room is the Admin. Implement the logic to pass the Admin role to another player if the current Admin leaves.
 
 4.  **Step 4: Game State Machine**
     -   Define the `gameState` object as specified above.
-    -   Create actions in `Trystero` for players to send data to the Admin (e.g., `submitDare`, `castVote`).
+    -   Create actions using `room.makeAction()` for players to send data to the Admin:
+    ```javascript
+    const [sendDare, getDare] = room.makeAction('submitDare');
+    const [sendVote, getVote] = room.makeAction('castVote');
+    const [sendState, getState] = room.makeAction('updateGameState');
+    ```
     -   Create a broadcast action for the Admin (`updateGameState`) that sends the entire state object to all clients.
     -   Implement a handler on the client side that updates the UI whenever a new `gameState` is received.
 

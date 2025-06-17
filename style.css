@@ -175,13 +175,17 @@ input[type="text"]:focus {
 #game-screen {
     flex-direction: column;
     height: 100vh;
-    height: -webkit-fill-available;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
 }
 
 #game-screen.active {
     display: flex;
+}
+
+/* Fix for iOS Safari */
+@supports (-webkit-touch-callout: none) {
+    #game-screen {
+        height: -webkit-fill-available;
+    }
 }
 
 .persistent-header {
@@ -238,6 +242,7 @@ input[type="text"]:focus {
     flex: 1;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
+    min-height: 0; /* Fix for flex children */
 }
 
 /* Player List Sidebar */
@@ -248,6 +253,7 @@ input[type="text"]:focus {
     padding: 1.5rem;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
 }
 
 .player-list h3 {

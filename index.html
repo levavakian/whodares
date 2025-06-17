@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Who Dares - Peer-to-Peer Dare Game</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="style.css">
@@ -123,7 +125,7 @@
                     <!-- Admin Panel -->
                     <div id="admin-panel" class="admin-panel" style="display: none;">
                         <h3>Admin Controls</h3>
-                        <button id="force-advance-btn" class="admin-btn">Force Advance Phase</button>
+                        <button id="force-advance-btn" class="admin-btn">Advance Phase</button>
                         
                         <div class="settings-section">
                             <h4>Game Settings</h4>
@@ -142,14 +144,14 @@
                                 </select>
                             </div>
                             <div class="setting-item">
-                                <label>Originator Guessing:</label>
+                                <label>Who Dared Guessing:</label>
                                 <select id="originator-guessing-anonymity">
                                     <option value="anonymous">Anonymous</option>
                                     <option value="live">Live</option>
                                 </select>
                             </div>
                             <div class="setting-item">
-                                <label>Vote for Self as Originator:</label>
+                                <label>Vote for Self as Darer:</label>
                                 <select id="vote-self-originator">
                                     <option value="disallow">Disallow</option>
                                     <option value="allow">Allow</option>

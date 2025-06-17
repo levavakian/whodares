@@ -31,6 +31,10 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Screen Management */
@@ -91,6 +95,8 @@ input[type="text"] {
     color: var(--text-primary);
     font-size: 1rem;
     transition: all 0.3s ease;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 input[type="text"]:focus {
@@ -118,12 +124,25 @@ input[type="text"]:focus {
 .primary-btn {
     background: var(--primary-color);
     color: white;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .primary-btn:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 5px rgba(99, 102, 241, 0.3);
+}
+
+@media (hover: none) {
+    .primary-btn:hover {
+        transform: none;
+        box-shadow: none;
+    }
 }
 
 .secondary-btn {
@@ -156,6 +175,9 @@ input[type="text"]:focus {
 #game-screen {
     flex-direction: column;
     height: 100vh;
+    height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
 }
 
 #game-screen.active {
@@ -215,6 +237,7 @@ input[type="text"]:focus {
     display: flex;
     flex: 1;
     overflow: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Player List Sidebar */
@@ -224,6 +247,7 @@ input[type="text"]:focus {
     border-right: 1px solid var(--border-color);
     padding: 1.5rem;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .player-list h3 {
@@ -320,6 +344,8 @@ textarea {
     resize: vertical;
     margin-bottom: 1.5rem;
     transition: all 0.3s ease;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 textarea:focus {
@@ -344,11 +370,22 @@ textarea:focus {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.1);
 }
 
-.dare-card:hover {
+.dare-card:hover, .dare-card:active {
     background: var(--card-hover);
     transform: translateY(-2px);
+}
+
+@media (hover: none) {
+    .dare-card:hover {
+        transform: none;
+    }
+    .dare-card:active {
+        background: var(--card-hover);
+        transform: scale(0.98);
+    }
 }
 
 .dare-card.selected {
@@ -395,11 +432,22 @@ textarea:focus {
     text-align: center;
     transition: all 0.3s ease;
     position: relative;
+    -webkit-tap-highlight-color: rgba(99, 102, 241, 0.1);
 }
 
-.player-card:hover {
+.player-card:hover, .player-card:active {
     background: var(--card-hover);
     transform: translateY(-2px);
+}
+
+@media (hover: none) {
+    .player-card:hover {
+        transform: none;
+    }
+    .player-card:active {
+        background: var(--card-hover);
+        transform: scale(0.98);
+    }
 }
 
 .player-card.selected {
@@ -456,6 +504,8 @@ textarea:focus {
     font-size: 1.25rem;
     font-style: italic;
     color: var(--text-primary);
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 .reveal-results {
@@ -563,15 +613,45 @@ select {
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
-        max-height: 200px;
+        max-height: 150px;
+        padding: 1rem;
+    }
+    
+    .player-list h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    #players-list li {
+        padding: 0.5rem;
+        font-size: 0.875rem;
     }
     
     .persistent-header {
-        padding: 1rem;
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .persistent-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .room-info {
+        flex-wrap: wrap;
+    }
+    
+    .phase-info {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
     }
     
     .game-main {
         padding: 1rem;
+    }
+    
+    .phase-view h2 {
+        font-size: 1.5rem;
     }
     
     .dare-cards {
@@ -579,6 +659,110 @@ select {
     }
     
     .player-cards {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .player-card {
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+    
+    textarea {
+        min-height: 100px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    input[type="text"] {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .primary-btn, .secondary-btn, .admin-btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        width: 100%;
+    }
+    
+    .button-group {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .admin-panel {
+        margin-top: 1rem;
+        padding: 1rem;
+    }
+    
+    .setting-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .setting-item select {
+        width: 100%;
+    }
+    
+    .splash-container {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .splash-container h1 {
+        font-size: 2rem;
+    }
+    
+    .vote-count {
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .dare-assignment {
+        padding: 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .winning-dare-display {
+        padding: 1.5rem;
+    }
+    
+    .dare-text {
+        font-size: 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .persistent-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .room-info {
+        justify-content: center;
+    }
+    
+    .player-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .player-list {
+        max-height: 120px;
+    }
+    
+    .phase-view {
+        padding: 0;
+    }
+    
+    .admin-badge {
+        font-size: 0.625rem;
+        padding: 0.125rem 0.25rem;
+    }
+    
+    .kick-btn {
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
     }
 } 

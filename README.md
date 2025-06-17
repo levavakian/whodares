@@ -162,7 +162,7 @@ Follow these steps to build the application:
     -   Implement the logic for the `SplashScreen`.
     -   Use `joinRoom` to create and join rooms. Pass an app ID and room code:
     ```javascript
-    const appId = 'who-dares-' + window.location.hostname;
+    const appId = 'who-dares-game';
     const room = joinRoom({ appId }, roomCode);
     ```
     -   Use the hash from the URL (`window.location.hash`) for the room code.

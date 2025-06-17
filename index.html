@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Dares - Peer-to-Peer Dare Game</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "trystero": "https://cdn.jsdelivr.net/npm/trystero@0.21.3/+esm"
+      }
+    }
+    </script>
+    <script type="module" src="app.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Splash Screen -->
+        <div id="splash-screen" class="screen active">
+            <div class="splash-container">
+                <h1>Who Dares</h1>
+                <p class="tagline">A Peer-to-Peer Dare Game</p>
+                
+                <div class="form-group">
+                    <input type="text" id="player-name" placeholder="Enter your name" maxlength="20">
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="room-code" placeholder="Room code (optional)" maxlength="10">
+                </div>
+                
+                <div class="button-group">
+                    <button id="create-room-btn" class="primary-btn">Create Room</button>
+                    <button id="join-room-btn" class="secondary-btn">Join Room</button>
+                </div>
+                
+                <div id="error-message" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <!-- Persistent Header -->
+            <header class="persistent-header">
+                <h1>Who Dares</h1>
+                <div class="room-info">
+                    <span>Room: <span id="room-code-display"></span></span>
+                    <button id="copy-link-btn" class="icon-btn" title="Copy room link">📋</button>
+                </div>
+                <div class="phase-info">
+                    <span id="phase-display"></span>
+                    <span id="timer-display" class="timer"></span>
+                </div>
+            </header>
+
+            <div class="game-container">
+                <!-- Player List Sidebar -->
+                <aside class="player-list">
+                    <h3>Players</h3>
+                    <ul id="players-list"></ul>
+                </aside>
+
+                <!-- Main Game Area -->
+                <main class="game-main">
+                    <!-- Game Phase Views -->
+                    <div id="game-phase-view">
+                        <!-- Dare Suggestion View -->
+                        <div id="dare-suggestion-view" class="phase-view">
+                            <h2>Submit Your Dare</h2>
+                            <p>Think of a creative dare for someone to perform!</p>
+                            <textarea id="dare-input" placeholder="I dare you to..." maxlength="200"></textarea>
+                            <button id="submit-dare-btn" class="primary-btn">Submit Dare</button>
+                            <div class="waiting-message" style="display: none;">
+                                <p>Waiting for other players to submit their dares...</p>
+                                <div class="players-status" id="dare-submission-status"></div>
+                            </div>
+                        </div>
+
+                        <!-- Dare Voting View -->
+                        <div id="dare-voting-view" class="phase-view" style="display: none;">
+                            <h2>Vote for a Dare</h2>
+                            <p>Choose the dare you want to see performed!</p>
+                            <div id="dare-cards" class="dare-cards"></div>
+                            <div class="waiting-message" style="display: none;">
+                                <p>Waiting for other players to vote...</p>
+                                <div class="players-status" id="dare-voting-status"></div>
+                            </div>
+                        </div>
+
+                        <!-- Originator Guessing View -->
+                        <div id="originator-guessing-view" class="phase-view" style="display: none;">
+                            <h2>Who Submitted This Dare?</h2>
+                            <div class="winning-dare-display">
+                                <p class="dare-text" id="winning-dare-text"></p>
+                            </div>
+                            <p>Guess who came up with this dare!</p>
+                            <div id="player-guess-cards" class="player-cards"></div>
+                            <div class="waiting-message" style="display: none;">
+                                <p>Waiting for other players to guess...</p>
+                                <div class="players-status" id="originator-guessing-status"></div>
+                            </div>
+                        </div>
+
+                        <!-- Reveal View -->
+                        <div id="reveal-view" class="phase-view" style="display: none;">
+                            <h2>The Reveal</h2>
+                            <div class="reveal-content">
+                                <div class="winning-dare-display">
+                                    <p class="dare-text" id="reveal-dare-text"></p>
+                                </div>
+                                <div id="reveal-results"></div>
+                                <div id="dare-assignment" class="dare-assignment"></div>
+                                <div id="originator-choice" class="originator-choice" style="display: none;">
+                                    <h3>Choose who performs the dare:</h3>
+                                    <div id="choice-player-cards" class="player-cards"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Panel -->
+                    <div id="admin-panel" class="admin-panel" style="display: none;">
+                        <h3>Admin Controls</h3>
+                        <button id="force-advance-btn" class="admin-btn">Force Advance Phase</button>
+                        
+                        <div class="settings-section">
+                            <h4>Game Settings</h4>
+                            <div class="setting-item">
+                                <label>Dare Voting:</label>
+                                <select id="dare-voting-anonymity">
+                                    <option value="anonymous">Anonymous</option>
+                                    <option value="live">Live</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Vote for Own Dare:</label>
+                                <select id="vote-own-dare">
+                                    <option value="allow">Allow</option>
+                                    <option value="disallow">Disallow</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Originator Guessing:</label>
+                                <select id="originator-guessing-anonymity">
+                                    <option value="anonymous">Anonymous</option>
+                                    <option value="live">Live</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Vote for Self as Originator:</label>
+                                <select id="vote-self-originator">
+                                    <option value="disallow">Disallow</option>
+                                    <option value="allow">Allow</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Round Timer:</label>
+                                <select id="round-timer">
+                                    <option value="0">None</option>
+                                    <option value="5">5 seconds</option>
+                                    <option value="30">30 seconds</option>
+                                    <option value="60">1 minute</option>
+                                    <option value="300">5 minutes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
